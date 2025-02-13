@@ -1,0 +1,28 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 每天 UTC 0 点自动运行（可调整时间）
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+
+      - name: 添加上游仓库
+        run: |
+          git remote add upstream https://github.com/original-owner/original-repo.git
+          git fetch upstream
+
+      - name: 合并上游分支（如 main）
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout main
+          git merge upstream/main
+
+      - name: 推送更改到当前仓库
+        run: git push origin main
